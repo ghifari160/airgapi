@@ -2,44 +2,29 @@
 
 Raspberry Pi OS image designed for airgapped systems.
 
-## How AirGaPi works
+## Todo
 
-AirGaPi uses Git submodule to include [pi-gen](https://github.com/rpi-distro/pi-gen) in the repository.
-The included pi-gen is then patched with [airgapi.patch.asc](airgapi.patch.asc).
-
-## Differences with pi-gen stages
-
-AirGaPi stages work slightly differently than [pi-gen stages](https://github.com/rpi-disto/pi-gen#stage-anatomy).
-
-| Stage    | Difference                                                                                         |
-|----------|----------------------------------------------------------------------------------------------------|
-| `stage0` | No difference.                                                                                     |
-| `stage1` | `raspi-config` installed with `no-install-recommends` flag. Boot partition set to readonly. Root fs set to readonly. Root fs mounted as overlay with tmpfs backing (changes stored on ram, not persisted to disk). |
-| `stage2` | Networking features are removed. NOOBS export removed.                                             |
-| `stage3` | UI features are removed. GPG, smartcard tools, YubiKey Manager, and exFAT utilities are installed. |
-| `stage4` | Skipped. No difference.                                                                            |
-| `stage5` | Skipped. No difference.                                                                            |
-
-## Dependencies
-
-- Docker
-- GPG
-
-Additionally, the host kernel must have `binfmt-support` enabled.
-See [pi-gen Docker build](https://github.com/RPi-Distro/pi-gen#docker-build).
+- [x] Add builder Docker image.
+- [x] Refactor build system to Packer-based build.
+- [ ] Port OverlayFS for root fs in modern Raspbian.
 
 ## Usage
 
-Prepare the build environment (this will apply [airgapi.patch.asc](airgapi.patch.asc) to [pi-gen](pi-gen))
+In the past, AirGaPi's build system consists of applying a patch file to a pi-gen Git submodule.
+We now use Hashicorp Packer.
+
+Build the builder container image.
 
 ``` shell
-./prepare-airgapi.sh
+docker build -t packer-builder-arm builder
 ```
 
-Update the configuration in `config`, then run `prepare-airgapi.sh` again to apply the changes.
-
-Run the build
+Run the build.
 
 ``` shell
-./build-airgapi.sh
+./build.sh
 ```
+
+Flash the image to a media of your choice.
+
+See [`variables.pkr.hcl`](variables.pkr.hcl) for configuration options.

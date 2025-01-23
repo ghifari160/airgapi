@@ -1,0 +1,14 @@
+[Unit]
+Description=First boot initialization
+After=network.target apt-daily.service apt-daily-upgrade.service
+Before=rc-local.service
+ConditionFileIsExecutable=/etc/firstboot.sh
+
+[Service]
+ExecStart=/etc/firstboot.sh
+ExecStartPost=/usr/sbin/reboot
+Type=oneshot
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
