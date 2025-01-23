@@ -15,4 +15,4 @@ lost+found
 
 # Project-specific ignores
 deploy
-config
+packer-cache
