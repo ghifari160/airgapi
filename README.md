@@ -6,7 +6,7 @@ Raspberry Pi OS image designed for airgapped systems.
 
 - [x] Add builder Docker image.
 - [x] Refactor build system to Packer-based build.
-- [ ] Port OverlayFS for root fs in modern Raspbian.
+- [x] Port OverlayFS for root fs in modern Raspbian.
 
 ## Usage
 

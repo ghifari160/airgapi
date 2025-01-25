@@ -292,4 +292,47 @@ build {
       "for GRP in adm dialout cdrom audio users sudo video games plugdev input gpio spi i2c netdev; do adduser ${var.username} $GRP; done",
     ]
   }
+
+  provisioner "debug" {
+    disable = true
+    note    = "Provisioning root OverlayFS"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "echo Provisioning root OverlayFS",
+      "sudo mkdir -p /usr/lib/airgapi"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "overlayfs/overlay"
+    destination = "/etc/initramfs-tools/scripts/overlay"
+  }
+
+  provisioner "file" {
+    source      = "overlayfs/overlayfs.sh"
+    destination = "/usr/lib/airgapi/overlayfs.sh"
+  }
+
+  provisioner "file" {
+    source      = "overlayfs/overlayfs.service"
+    destination = "/lib/systemd/system/overlayfs.service"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "ls -l /etc/initramfs-tools/scripts/overlay",
+      "sudo chmod a+rx /etc/initramfs-tools/scripts/overlay",
+      "ls -l /etc/initramfs-tools/scripts/overlay",
+      "sudo chmod a+rx /usr/lib/airgapi/overlayfs.sh",
+      "sudo chmod a+r /lib/systemd/system/overlayfs.service",
+      "sudo ln -s /lib/systemd/system/overlayfs.service /etc/systemd/system/multi-user.target.wants/overlayfs.service"
+    ]
+  }
+
+  provisioner "debug" {
+    disable = true
+    note    = "Root OverlayFS provisioned"
+  }
 }

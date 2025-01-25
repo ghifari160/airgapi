@@ -1,0 +1,12 @@
+[Unit]
+Description=Toggle root OverlayFS on
+After=boot-firmware.mount
+ConditionFileIsExecutable=/boot/firmware/overlayfs
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/airgapi/overlayfs.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

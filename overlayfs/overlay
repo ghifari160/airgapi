@@ -1,0 +1,51 @@
+# Local filesystem mounting
+
+. /scripts/local
+
+local_mount_root() {
+    local_top
+
+    if [ -z "${ROOT}" ]; then
+        panic "No root device specified. Boot arguments must include a root= parameter."
+    fi
+
+    local_device_setup "${ROOT}" "root file system"
+    ROOT="${DEV}"
+
+    # Get root fs type
+    if [ -z "${ROOTFSTYPE}" ] || [ "${ROOTFSTYPE}" = auto ]; then
+        FSTYPE=$(get_fstype "${ROOT}")
+    else
+        FSTYPE=${ROOTFSTYPE}
+    fi
+
+    local_premount
+
+    checkfs "${ROOT}" root "${FSTYPE}"
+
+    # Prepare overlay fs tree
+    mkdir /ovlfs
+
+    # Use tmpfs as overlay directory
+    mount -t tmpfs tmpfs /ovlfs
+    mkdir -p /ovlfs/data /ovlfs/work /ovlfs/root
+
+    # Mount/remount root
+    umount "${ROOT}"
+    if ! mount -r ${FSTYPE:+-t "${FSTYPE}"} ${ROOTFLAGS} "${ROOT}" "/ovlfs/root"; then
+    # if ! mount -r ${FSTYPE:+-t "${FSTYPE}"} ${ROOTFLAGS} "${ROOT}" "${rootmnt?}"; then
+        panic "Failed to mount ${ROOT} as root file system."
+    fi
+
+    # Mount root as overlay
+    mount -t overlay overlay -o lowerdir=/ovlfs/root,upperdir=/ovlfs/data,workdir=/ovlfs/work ${rootmnt?}
+
+    # Recursive bind /ovlfs to ${rootmnt}/ovlfs (initram /ovlfs -> ${rootmnt}/ovlfs)
+    mkdir -p ${rootmnt?}/ovlfs
+    mount -n -o rbind /ovlfs ${rootmnt?}/ovlfs
+
+    # Fix fstab
+    sed -i \
+        -e 's|PARTUUID=\([a-f0-9\-]\{11\}\)\([[:space:]].*\)/\([[:space:]].*\)ext4\([[:space:]].*\)defaults,ro,noatime|overlay\2/\3overlay\4noauto,x-systemd.automount,lowerdir='/ovlfs/root',upperdir='/ovlfs/upper',workdir='/ovlfs/work'|g' \
+        ${rootmnt?}/etc/fstab
+}
