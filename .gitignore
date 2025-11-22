@@ -1,4 +1,4 @@
-# OS-specific ignores
+# OS ignores
 # Windows
 Thumbs.db
 
@@ -8,11 +8,11 @@ Thumbs.db
 # Linux
 lost+found
 
-# Stack-specific ignores
+# Stack ignores
 
-# IDE-specific ignores
+# IDE ignores
 .vscode
 
-# Project-specific ignores
-deploy
+# Project ignores
+output
 packer-cache
