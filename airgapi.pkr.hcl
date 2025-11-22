@@ -194,9 +194,13 @@ build {
   provisioner "shell" {
     inline = [
       "echo Installing MedHash Tools",
-      "curl -fsSL \"https://projects.gassets.space/medhash-tools/${var.medhash_ver}/medhash-linux_arm64.tar.gz\" -o /tmp/medhash-linux.tar.gz",
-      "mkdir -p /usr/local/medhash-tools",
-      "tar -xvzf /tmp/medhash-linux.tar.gz -C /usr/local/medhash-tools",
+      "git clone https://github.com/ghifari160/medhash-tools /tmp/medhash-tools",
+      "mkdir -p /usr/local/medhash-tools/bin",
+      "cd /tmp/medhash-tools",
+      "git checkout ${var.medhash_ver}",
+      "GOARCH=arm GOOS=linux /usr/local/go/bin/go build -o /usr/local/medhash-tools/bin/medhash .",
+      "cp README.md /usr/local/medhash-tools/",
+      "cp LICENSE /usr/local/medhash-tools/",
       "cd /usr/bin",
       "ln -s ../local/medhash-tools/bin/medhash medhash"
     ]
@@ -288,7 +292,7 @@ build {
       "echo Creating user",
       "adduser --disabled-password --gecos \"\" --shell /bin/bash ${var.username}",
       "usermod -g sudo ${var.username}",
-      "passwd -de ${var.username}",
+      "passwd -d ${var.username}",
       "for GRP in adm dialout cdrom audio users sudo video games plugdev input gpio spi i2c netdev; do adduser ${var.username} $GRP; done",
     ]
   }
