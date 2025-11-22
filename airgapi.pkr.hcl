@@ -11,7 +11,7 @@ locals {
   golang_archive_name = "go-linux-arm64.tar.gz"
   golang_archive_path = "/tmp/${local.golang_archive_name}"
   golang_checksum     = "${var.golang_checksum_hash}  ${local.golang_archive_path}"
-  iso_url             = "https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-${var.raspbian_ver}/${var.raspbian_ver}-raspios-${var.raspbian_deb_ver}-arm64-lite.img.xz"
+  iso_url             = "https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-${var.raspbian_date}/${var.raspbian_ver}-raspios-${var.raspbian_deb_ver}-arm64-lite.img.xz"
 }
 
 source "arm-image" "raspbian" {
@@ -293,7 +293,7 @@ build {
     ]
   }
 
-  provisioner "debug" {
+  provisioner "breakpoint" {
     disable = true
     note    = "Provisioning root OverlayFS"
   }
@@ -331,7 +331,7 @@ build {
     ]
   }
 
-  provisioner "debug" {
+  provisioner "breakpoint" {
     disable = true
     note    = "Root OverlayFS provisioned"
   }
